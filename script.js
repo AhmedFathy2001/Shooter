@@ -179,6 +179,18 @@ window.addEventListener('click', (e) => {
     }));
 
 });
+window.addEventListener('touchstart', () => {
+    const angle = Math.atan2(e.clientY - y, e.clientX - x);
+    const velocity = {
+        x: Math.cos(angle) * 5,
+        y: Math.sin(angle) * 5
+    }
+    projectiles.push(new Projectile(x, y, 5, 'white', {
+        x: velocity.x,
+        y: velocity.y
+    }));
+
+})
 
 //runs the animation
 function animate() {
@@ -285,6 +297,12 @@ function animate() {
 
 //starts the game
 startGame.addEventListener('click', () => {
+    init();
+    animate();
+    spawnEnemies();
+    modal.classList.replace('flex', 'hidden');
+});
+startGame.addEventListener('touchstart', () => {
     init();
     animate();
     spawnEnemies();
