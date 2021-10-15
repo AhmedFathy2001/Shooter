@@ -167,7 +167,7 @@ function spawnEnemies() {
 
 
 //creates the projectile on click
-window.addEventListener('click', (e) => {
+document.body.addEventListener('click', (e) => {
     const angle = Math.atan2(e.clientY - y, e.clientX - x);
     const velocity = {
         x: Math.cos(angle) * 5,
