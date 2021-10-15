@@ -290,3 +290,5 @@ startGame.addEventListener('click', () => {
     spawnEnemies();
     modal.classList.replace('flex', 'hidden');
 })
+
+document.addEventListener('contextmenu', event => event.preventDefault());
