@@ -8,7 +8,6 @@ const healthCount = document.querySelector('#healthCount');
 const speed = document.querySelector('#speed');
 const highScore = document.querySelector('#highScore');
 const modalHighScore = document.querySelector('#highScoreDisplay');
-let touchEvent = 'ontouchstart' in window ? 'touchstart' : 'click';
 let animationId;
 let timer = 2000;
 let interval;
@@ -167,9 +166,20 @@ function spawnEnemies() {
 }
 
 
-//creates the projectile on click/touch
+//creates the projectile on click
+window.addEventListener('click', (e) => {
+    const angle = Math.atan2(e.clientY - y, e.clientX - x);
+    const velocity = {
+        x: Math.cos(angle) * 5,
+        y: Math.sin(angle) * 5
+    }
+    projectiles.push(new Projectile(x, y, 5, 'white', {
+        x: velocity.x,
+        y: velocity.y
+    }));
 
-window.addEventListener(touchEvent, () => {
+});
+window.addEventListener('touchstart', () => {
     const angle = Math.atan2(e.clientY - y, e.clientX - x);
     const velocity = {
         x: Math.cos(angle) * 5,
@@ -286,8 +296,13 @@ function animate() {
 }
 
 //starts the game
-
-startGame.addEventListener(touchEvent, () => {
+startGame.addEventListener('click', () => {
+    init();
+    animate();
+    spawnEnemies();
+    modal.classList.replace('flex', 'hidden');
+});
+startGame.addEventListener('touchstart', () => {
     init();
     animate();
     spawnEnemies();
