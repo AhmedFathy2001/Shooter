@@ -1,3 +1,4 @@
+"use strict";
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const scoreEl = document.querySelector('#scoreEl');
@@ -11,6 +12,7 @@ let animationId;
 let timer = 2000;
 let interval;
 let score = 0;
+let health = 3;
 
 //sets highscore to latest highscore achieved if exists else sets it to 0
 highScore.innerHTML = localStorage.getItem('highscore') || 0;
@@ -122,7 +124,6 @@ let player = new Player(x, y, 10, 'white');
 let projectiles = [];
 let enemies = [];
 let particles = [];
-
 //Re initializes the game settings
 function init() {
     player = new Player(x, y, 10, 'white');
