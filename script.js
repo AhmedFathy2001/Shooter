@@ -3,8 +3,19 @@ const ctx = canvas.getContext('2d');
 const scoreEl = document.querySelector('#scoreEl');
 const startGame = document.querySelector('#startGame');
 const modal = document.querySelector('#modal');
+const healthCount = document.querySelector('#healthCount');
+const speed = document.querySelector('#speed');
+const highScore = document.querySelector('#highScore');
+const modalHighScore = document.querySelector('#highScoreDisplay')
 let animationId;
+let timer = 2000;
+let interval;
 let score = 0;
+
+//sets highscore to latest highscore achieved if exists else sets it to 0
+highScore.innerHTML = localStorage.getItem('highscore') || 0;
+modalHighScore.innerHTML = localStorage.getItem('highscore') || 0;
+
 //Canvas height/width
 canvas.width = innerWidth;
 canvas.height = innerHeight;
@@ -120,33 +131,39 @@ function init() {
     particles = [];
     score = 0;
     scoreEl.innerHTML = 0;
+    health = 3;
+    healthCount.innerHTML = health;
+    timer = 2000;
+    speed.innerHTML = timer + "ms";
 }
-init();
-//spawns enemies randomly in the screen
+
+
+//adds a spawn timer for the enemies
 function spawnEnemies() {
-    setInterval(() => {
-            const radius = Math.random() * (30 - 10) + 10;
-            let x;
-            let y;
-            if (Math.random() < .5) {
-                x = Math.random() < .5 ? canvas.width + radius : 0 - radius;
-                y = Math.random() * canvas.height;
-            } else {
-                x = Math.random() * canvas.width;
-                y = Math.random() < .5 ? canvas.height + radius : 0 - radius;
-            }
-            const color = `hsl(${Math.random()*360}, 50%, 50%)`
-            const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x);
-            const velocity = {
-                x: Math.cos(angle),
-                y: Math.sin(angle)
-            }
+    // Clears the previous setInterval timer
+    clearInterval(interval);
+    const radius = canvas.width > 500 ? Math.random() * (30 - 10) + 10 : Math.random() * (20 - 10) + 10;
+    let x;
+    let y;
+    if (Math.random() < .5) {
+        x = Math.random() < .5 ? canvas.width + radius : 0 - radius;
+        y = Math.random() * canvas.height;
+    } else {
+        x = Math.random() * canvas.width;
+        y = Math.random() < .5 ? canvas.height + radius : 0 - radius;
+    }
+    const color = `hsl(${Math.random()*360}, 50%, 50%)`
+    const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x);
+    const velocity = {
+        x: Math.cos(angle),
+        y: Math.sin(angle)
+    }
 
-            enemies.push(new Enemy(x, y, radius, color, velocity));
+    enemies.push(new Enemy(x, y, radius, color, velocity));
 
-        },
-        1000);
+    interval = setInterval(spawnEnemies, timer);
 }
+
 
 //creates the projectile on click
 window.addEventListener('click', (e) => {
@@ -200,16 +217,32 @@ function animate() {
         //end game
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         if (dist - enemy.radius - player.radius < 1) {
-            cancelAnimationFrame(animationId);
-            modal.classList.replace('hidden', 'flex');
-            document.querySelector('h1').innerText = score;
-            document.querySelector('button').innerText = 'Restart Game'
+            health -= 1;
+            if (health == 0) {
+                healthCount.innerHTML = health;
+                cancelAnimationFrame(animationId);
+                modal.classList.replace('hidden', 'flex');
+                document.querySelector('h2').innerText = score;
+                document.querySelector('#scorePts').classList.replace('hidden', 'block');
+                document.querySelector('button').innerText = 'Restart Game';
+                if (highScore.innerHTML < score) {
+                    document.querySelector('#highScoreDisplay').innerHTML = score;
+                    highScore.innerHTML = score
+                    localStorage.setItem('highscore', score);
+                }
+            } else {
+                healthCount.innerHTML = health;
+                enemies.splice(index, 1);
+            }
         }
         //collision handling for the projectiles with the enemies
         projectiles.forEach((projectile, projectileIndex) => {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
             if (dist - enemy.radius - projectile.radius < 1) {
 
+                //changes the spawn rate by 4ms everytime a projectile collides with enemies
+                timer == 300 ? timer : timer -= 4;
+                speed.innerHTML = timer + 'ms';
                 for (let index = 0; index < enemy.radius * 2; index++) {
                     particles.push(new Particle(projectile.x, projectile.y,
                         Math.random() * 2, enemy.color, {
@@ -219,8 +252,9 @@ function animate() {
                 }
                 //shrinks enemies sizes by 10 per hit if there radius is more than 15
                 if (enemy.radius - 10 > 5) {
+
                     //increment the score on shrink
-                    score += 50;
+                    score += 100;
                     scoreEl.innerHTML = score;
 
                     //animation of shrinking
@@ -228,14 +262,13 @@ function animate() {
                         radius: enemy.radius - 10
                     });
 
-
                     setTimeout(() => {
                         projectiles.splice(projectileIndex, 1)
                     }, 0)
                 } else {
 
                     //increment the score on killing the enemy
-                    score += 100;
+                    score += 250;
                     scoreEl.innerHTML = score;
 
                     //kills(removes from array) enemies if there radius is less than 15
@@ -254,5 +287,5 @@ startGame.addEventListener('click', () => {
     init();
     animate();
     spawnEnemies();
-    modal.classList.replace('flex', 'hidden')
+    modal.classList.replace('flex', 'hidden');
 })
