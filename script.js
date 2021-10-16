@@ -194,10 +194,10 @@ document.body.addEventListener('click', (e) => {
     }));
 });
 document.body.addEventListener('touchstart', (e) => {
-    let touches = Array.from(e.touches)
-    if (touches > 1) {
-        for (let index = 1; index < touches.length; index++) {
-            const angle = Math.atan2(e.clientY - y, e.clientX - x);
+    let touches = Array.from(e.touches);
+    if (touches.length > 1) {
+        for (let index = 0; index < touches.length; index++) {
+            const angle = Math.atan2(touches[index].clientY - y, touches[index].clientX - x);
             const velocity = {
                 x: Math.cos(angle) * 5,
                 y: Math.sin(angle) * 5
