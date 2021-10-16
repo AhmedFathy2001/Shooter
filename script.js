@@ -192,9 +192,18 @@ document.body.addEventListener('click', (e) => {
         x: velocity.x,
         y: velocity.y
     }));
-
 });
-
+document.body.addEventListener('touchstart', (e) => {
+    const angle = Math.atan2(e.clientY - y, e.clientX - x);
+    const velocity = {
+        x: Math.cos(angle) * 5,
+        y: Math.sin(angle) * 5
+    }
+    projectiles.push(new Projectile(x, y, 5, 'white', {
+        x: velocity.x,
+        y: velocity.y
+    }));
+});
 //runs the animation
 function animate() {
     //gets current animation frame and runs an infinite loop around it to keep the animation running til the player dies
