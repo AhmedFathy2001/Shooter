@@ -288,7 +288,7 @@ function animate() {
             const dist = Math.hypot(projectile.x - enemy.x, projectile.y - enemy.y);
             if (dist - enemy.radius - projectile.radius < 1) {
 
-                //changes the spawn rate by 4ms everytime a projectile collides with enemies
+                //changes the spawn rate depending on the difficulty with every collision
                 switch (difficultyValue) {
                     case 'easy':
                         timer == 1000 ? timer : timer -= 4;
@@ -313,7 +313,6 @@ function animate() {
                 }
                 //shrinks enemies sizes by 10 per hit if there radius is more than 15
                 if (enemy.radius - 10 > 5) {
-
                     //increment the score on shrink
                     difficultyValue == 'easy' ? score += 50 :
                         difficultyValue == 'meduim' ? score += 150 :
@@ -324,7 +323,7 @@ function animate() {
                     gsap.to(enemy, {
                         radius: enemy.radius - 10
                     });
-
+                    // enemy.radius -= 10;
                     setTimeout(() => {
                         projectiles.splice(projectileIndex, 1)
                     }, 0)
@@ -338,8 +337,8 @@ function animate() {
 
                     //kills (removes from array) enemies if there radius is less than 15
                     setTimeout(() => {
-                        enemies.splice(index, 1)
-                        projectiles.splice(projectileIndex, 1)
+                        enemies.splice(index, 1);
+                        projectiles.splice(projectileIndex, 1);
                     }, 0);
                 }
             }
