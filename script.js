@@ -193,17 +193,34 @@ document.body.addEventListener('click', (e) => {
         y: velocity.y
     }));
 });
-document.body.addEventListener('touchmove', (e) => {
-    const angle = Math.atan2(e.clientY - y, e.clientX - x);
-    const velocity = {
-        x: Math.cos(angle) * 5,
-        y: Math.sin(angle) * 5
+document.body.addEventListener('touchstart', (e) => {
+    let touches = Array.from(e.touches)
+    if (touches > 1) {
+        for (let index = 1; index < touches.length; index++) {
+            const angle = Math.atan2(e.clientY - y, e.clientX - x);
+            const velocity = {
+                x: Math.cos(angle) * 5,
+                y: Math.sin(angle) * 5
+            }
+            projectiles.push(new Projectile(x, y, 5, 'white', {
+                x: velocity.x,
+                y: velocity.y
+            }));
+        }
+    } else {
+        const angle = Math.atan2(e.clientY - y, e.clientX - x);
+        const velocity = {
+            x: Math.cos(angle) * 5,
+            y: Math.sin(angle) * 5
+        }
+        projectiles.push(new Projectile(x, y, 5, 'white', {
+            x: velocity.x,
+            y: velocity.y
+        }));
     }
-    projectiles.push(new Projectile(x, y, 5, 'white', {
-        x: velocity.x,
-        y: velocity.y
-    }));
+
 });
+
 //runs the animation
 function animate() {
     //gets current animation frame and runs an infinite loop around it to keep the animation running til the player dies
@@ -325,7 +342,8 @@ function animate() {
 }
 
 //starts the game
-startGame.addEventListener('click', () => {
+startGame.addEventListener('click', (e) => {
+    e.stopPropagation();
     init();
     animate();
     spawnEnemies();
