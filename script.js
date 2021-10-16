@@ -193,7 +193,7 @@ document.body.addEventListener('click', (e) => {
         y: velocity.y
     }));
 });
-document.body.addEventListener('touchstart', (e) => {
+document.body.addEventListener('touchmove', (e) => {
     const angle = Math.atan2(e.clientY - y, e.clientX - x);
     const velocity = {
         x: Math.cos(angle) * 5,
