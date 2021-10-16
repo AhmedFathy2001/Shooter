@@ -5,9 +5,9 @@ const scoreEl = document.querySelector('#scoreEl');
 const startGame = document.querySelector('#startGame');
 const modal = document.querySelector('#modal');
 const healthCount = document.querySelector('#healthCount');
-const speed = document.querySelector('#speed');
-const highScore = document.querySelector('#highScore');
-const modalHighScore = document.querySelector('#highScoreDisplay')
+const modalHighScore = document.querySelector('#highScoreDisplay');
+const pause = document.getElementById('pause');
+const difficulty = Array.from(document.querySelectorAll("input[name='difficulty']"));
 let animationId;
 let timer = 2000;
 let interval;
@@ -15,7 +15,6 @@ let score = 0;
 let health = 3;
 
 //sets highscore to latest highscore achieved if exists else sets it to 0
-highScore.innerHTML = localStorage.getItem('highscore') || 0;
 modalHighScore.innerHTML = localStorage.getItem('highscore') || 0;
 
 //Canvas height/width
@@ -124,6 +123,8 @@ let player = new Player(x, y, 10, 'white');
 let projectiles = [];
 let enemies = [];
 let particles = [];
+let difficultyValue;
+
 //Re initializes the game settings
 function init() {
     player = new Player(x, y, 10, 'white');
@@ -134,8 +135,22 @@ function init() {
     scoreEl.innerHTML = 0;
     health = 3;
     healthCount.innerHTML = health;
-    timer = 2000;
-    speed.innerHTML = timer + "ms";
+    //sets difficulty
+    for (let i = 0; i < difficulty.length; i++) {
+        if (difficulty[i].id == 'easy' && difficulty[i].checked) {
+            timer = 2000;
+            difficultyValue = 'easy';
+            return;
+        } else if (difficulty[i].id == 'meduim' && difficulty[i].checked) {
+            timer = 1250;
+            difficultyValue = 'meduim';
+            return;
+        } else if (difficulty[i].id == 'hard' && difficulty[i].checked) {
+            timer = 750;
+            difficultyValue = 'hard';
+            return;
+        }
+    }
 }
 
 
@@ -215,7 +230,7 @@ function animate() {
     enemies.forEach((enemy, index) => {
         enemy.update();
 
-        //end game
+        //ends the game (or reduced lives)
         const dist = Math.hypot(player.x - enemy.x, player.y - enemy.y);
         if (dist - enemy.radius - player.radius < 1) {
             health -= 1;
@@ -226,9 +241,9 @@ function animate() {
                 document.querySelector('h2').innerText = score;
                 document.querySelector('#scorePts').classList.replace('hidden', 'block');
                 document.querySelector('button').innerText = 'Restart Game';
-                if (highScore.innerHTML < score) {
-                    document.querySelector('#highScoreDisplay').innerHTML = score;
-                    highScore.innerHTML = score
+                pause.classList.add('hidden')
+                if (modalHighScore.innerHTML < score) {
+                    modalHighScore.innerHTML = score;
                     localStorage.setItem('highscore', score);
                 }
             } else {
@@ -242,8 +257,21 @@ function animate() {
             if (dist - enemy.radius - projectile.radius < 1) {
 
                 //changes the spawn rate by 4ms everytime a projectile collides with enemies
-                timer == 300 ? timer : timer -= 4;
-                speed.innerHTML = timer + 'ms';
+                switch (difficultyValue) {
+                    case 'easy':
+                        timer == 1000 ? timer : timer -= 4;
+                        break;
+                    case 'meduim':
+                        timer == 600 ? timer : timer -= 3;
+                        break;
+                    case 'hard':
+                        timer == 300 ? timer : timer -= 2;
+                        break;
+                    default:
+                        timer = 1000;
+                }
+
+                //creates explosion particles
                 for (let index = 0; index < enemy.radius * 2; index++) {
                     particles.push(new Particle(projectile.x, projectile.y,
                         Math.random() * 2, enemy.color, {
@@ -255,7 +283,9 @@ function animate() {
                 if (enemy.radius - 10 > 5) {
 
                     //increment the score on shrink
-                    score += 100;
+                    difficultyValue == 'easy' ? score += 50 :
+                        difficultyValue == 'meduim' ? score += 150 :
+                        score += 250;
                     scoreEl.innerHTML = score;
 
                     //animation of shrinking
@@ -269,10 +299,12 @@ function animate() {
                 } else {
 
                     //increment the score on killing the enemy
-                    score += 250;
+                    difficultyValue == 'easy' ? score += 150 :
+                        difficultyValue == 'meduim' ? score += 200 :
+                        score += 350;
                     scoreEl.innerHTML = score;
 
-                    //kills(removes from array) enemies if there radius is less than 15
+                    //kills (removes from array) enemies if there radius is less than 15
                     setTimeout(() => {
                         enemies.splice(index, 1)
                         projectiles.splice(projectileIndex, 1)
@@ -289,6 +321,37 @@ startGame.addEventListener('click', () => {
     animate();
     spawnEnemies();
     modal.classList.replace('flex', 'hidden');
+    pause.classList.remove('hidden')
 })
 
+//prevents right click actions for smoother gameplay
 document.addEventListener('contextmenu', event => event.preventDefault());
+
+//Pauses/resumes the game
+let pausing = false;
+
+window.addEventListener('blur', () => {
+    pause.classList.replace('fa-pause-circle', 'fa-play-circle');
+    pause.classList.add('paused');
+    cancelAnimationFrame(animationId);
+    clearInterval(interval);
+    pausing = true;
+});
+
+pause.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (pausing) {
+        animate();
+        setTimeout(spawnEnemies, 2000);
+        pausing = false;
+        pause.classList.replace('fa-play-circle', 'fa-pause-circle');
+        pause.classList.remove('paused');
+
+    } else {
+        pause.classList.replace('fa-pause-circle', 'fa-play-circle');
+        pause.classList.add('paused');
+        cancelAnimationFrame(animationId);
+        clearInterval(interval);
+        pausing = true;
+    }
+});
