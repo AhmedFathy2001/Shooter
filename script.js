@@ -199,11 +199,16 @@ window.addEventListener("load", function() {
                 y: velocity.y
             }));
         });
+
         document.body.addEventListener('touchstart', (e) => {
-            let touches = Array.from(e.touches);
+            let touches = e.touches;
+
+            //Handles multi touch taps
             if (touches.length > 1) {
                 for (let index = 0; index < touches.length; index++) {
-                    const angle = Math.atan2(touches[index].clientY - y, touches[index].clientX - x);
+                    const angle = Math.atan2(touches.item(index).clientY - y, touches.item(index).clientX - x);
+                    console.log(angle);
+                    console.log(touches.item(index));
                     const velocity = {
                         x: Math.cos(angle) * 5,
                         y: Math.sin(angle) * 5
@@ -214,6 +219,7 @@ window.addEventListener("load", function() {
                     }));
                 }
             } else {
+                //if only one tap was detected
                 const angle = Math.atan2(e.clientY - y, e.clientX - x);
                 const velocity = {
                     x: Math.cos(angle) * 5,
@@ -224,7 +230,6 @@ window.addEventListener("load", function() {
                     y: velocity.y
                 }));
             }
-
         });
 
         //runs the animation
