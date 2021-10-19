@@ -1,0 +1,6 @@
+[{
+        "relation": ["delegate_permission/common.handle_all_urls"],
+        "target" : { "namespace": "android_app", "package_name": "com.w3spaces.shooter_game.twa",
+                     "sha256_cert_fingerprints": ["50:98:89:6F:F5:36:23:C3:D9:2C:08:49:74:DB:12:32:E3:8E:5A:E9:95:1A:A1:37:65:C5:18:D2:CD:C8:DC:14"] }
+      }
+]

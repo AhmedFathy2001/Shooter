@@ -394,8 +394,7 @@ window.addEventListener('load', () => {
                         //kills (removes from array) enemies if there radius is less than 15
 
                         enemies.splice(index, 1);
-                        projectiles.splice(projectileIndex, 1);
-                        console.log(enemies);
+                        projectiles.splice(projectileIndex, 1)
                     }
                 }
             })
